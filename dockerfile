@@ -2,25 +2,24 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 
-# Copy dependency files from the subfolder to the current WORKDIR (/app)
-COPY react-app/package*.json ./
+# Instead of pathing from the root, let's copy the specific folder
+# This ensures that even if context is weird, we target the right spot
+COPY ./react-app/package.json ./package.json
+COPY ./react-app/package-lock.json ./package-lock.json
 
-# DEBUG: Check if files actually copied
-RUN ls -al
+# If this fails, the build stops here and we know the path is the issue
+RUN ls -la /app
 
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code from the subfolder
-COPY react-app/ .
+# Copy everything else from the subfolder
+COPY ./react-app/ .
 
-# Build the app
 RUN npm run build
 
-# Stage 2: Serve with Nginx
+# Stage 2: Serve
 FROM nginx:alpine-slim
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/build /usr/share/nginx/html
-
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
