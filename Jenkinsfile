@@ -5,7 +5,6 @@ pipeline {
         ACR_REGISTRY = "demojenkinsacr.azurecr.io" 
         IMAGE_NAME = "react-app"
         RESOURCE_GROUP = "aditya"
-        ACI_NAME = "reactappcontainer"
     }
 
     stages {
@@ -42,7 +41,7 @@ pipeline {
                     sh '''
                     az login --service-principal -u $AZ_CLIENT -p $AZ_SECRET --tenant $AZ_TENANT
                     
-                    az acr login --name ${ACR_REGISTRY.split('\\.')[0]}
+                    az acr login --name demojenkinsacr
 
                     docker push ${ACR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
                     docker push ${ACR_REGISTRY}/${IMAGE_NAME}:latest
