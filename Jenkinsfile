@@ -17,6 +17,7 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
+                cleanWS()
                 git url: 'https://github.com/Adityarrudola/reactapp-jenkins-cicd.git', branch: 'main'
             }
         }
