@@ -9,27 +9,24 @@ pipeline {
     }
 
     stages {
+
         stage('Approve Build') {
             steps { 
                 input message: 'Do you want to proceed with the build?', ok: 'Yes, proceed'
             }
         }
 
-        stage('Clone Repository') {
-            steps {
-                cleanWS()
-                git url: 'https://github.com/Adityarrudola/reactapp-jenkins-cicd.git', branch: 'main'
-            }
-        }
-
         stage('Build Image') {
             steps {
-                sh """
+                sh '''
+                echo "FILES:"
+                ls -R
+
                 docker build --no-cache \
                   -t ${ACR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} \
                   -t ${ACR_REGISTRY}/${IMAGE_NAME}:latest \
                   .
-                """
+                '''
             }
         }
 
@@ -42,17 +39,14 @@ pipeline {
                     clientSecretVariable: 'AZ_SECRET',
                     tenantIdVariable: 'AZ_TENANT'
                 )]) {
-                    sh """
-                    # Log in to Azure first
+                    sh '''
                     az login --service-principal -u $AZ_CLIENT -p $AZ_SECRET --tenant $AZ_TENANT
                     
-                    # Log in to ACR using the Azure CLI context
                     az acr login --name ${ACR_REGISTRY.split('\\.')[0]}
 
-                    # Push the images
                     docker push ${ACR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
                     docker push ${ACR_REGISTRY}/${IMAGE_NAME}:latest
-                    """
+                    '''
                 }
             }
         }
@@ -66,11 +60,10 @@ pipeline {
                     clientSecretVariable: 'AZ_SECRET',
                     tenantIdVariable: 'AZ_TENANT'
                 )]) {
-                    sh """
+                    sh '''
                     az login --service-principal -u $AZ_CLIENT -p $AZ_SECRET --tenant $AZ_TENANT
                     az account set --subscription $AZ_SUB
 
-                    # Re-create the ACI. Note: Added --registry-login-server for ACR authentication
                     az container create \
                     --resource-group ${RESOURCE_GROUP} \
                     --name ${ACI_NAME} \
@@ -84,7 +77,7 @@ pipeline {
                     --cpu 1 \
                     --memory 1.5 \
                     --restart-policy Always
-                    """
+                    '''
                 }
             }
         }
