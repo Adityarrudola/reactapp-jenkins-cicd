@@ -94,12 +94,20 @@ pipeline {
             emailext(
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: "Build SUCCESS for ${env.JOB_NAME}. Image: ${ACR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}",
+                mimeType: 'text/html',
                 to: 'aditya.rudola@quokkalabs.com'
             )
         }
         failure {
             emailext(
                 subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <h2 style="color:red;">Build FAILED</h2>
+                    <p><b>Job:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                    <p><b>Check Console:</b> ${env.BUILD_URL}</p>
+                """,
+                mimeType: 'text/html',
                 to: 'aditya.rudola@quokkalabs.com'
             )
         }
