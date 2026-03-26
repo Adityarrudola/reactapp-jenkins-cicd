@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'jenkins-agent' }
+    agent { label 'agent-1' }
 
     environment {
         ACR_REGISTRY = "demojenkinsacr.azurecr.io" 
