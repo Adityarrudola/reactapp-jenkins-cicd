@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        ACR_REGISTRY = "demojenkinsacr.azurecr.io" 
+        ACR_REGISTRY = "demojenkinsacr.azurecr.io"
         IMAGE_NAME = "react-app"
         RESOURCE_GROUP = "aditya"
+        ACI_NAME = "reactappcontainer"
     }
 
     stages {
@@ -22,8 +23,8 @@ pipeline {
                 ls -R
 
                 docker build --no-cache \
-                  -t ${ACR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} \
-                  -t ${ACR_REGISTRY}/${IMAGE_NAME}:latest \
+                  -t $ACR_REGISTRY/$IMAGE_NAME:$BUILD_NUMBER \
+                  -t $ACR_REGISTRY/$IMAGE_NAME:latest \
                   .
                 '''
             }
@@ -43,8 +44,8 @@ pipeline {
                     
                     az acr login --name demojenkinsacr
 
-                    docker push ${ACR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
-                    docker push ${ACR_REGISTRY}/${IMAGE_NAME}:latest
+                    docker push $ACR_REGISTRY/$IMAGE_NAME:$BUILD_NUMBER
+                    docker push $ACR_REGISTRY/$IMAGE_NAME:latest
                     '''
                 }
             }
@@ -64,13 +65,13 @@ pipeline {
                     az account set --subscription $AZ_SUB
 
                     az container create \
-                    --resource-group ${RESOURCE_GROUP} \
-                    --name ${ACI_NAME} \
-                    --image ${ACR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} \
-                    --registry-login-server ${ACR_REGISTRY} \
+                    --resource-group $RESOURCE_GROUP \
+                    --name $ACI_NAME \
+                    --image $ACR_REGISTRY/$IMAGE_NAME:$BUILD_NUMBER \
+                    --registry-login-server $ACR_REGISTRY \
                     --registry-username $AZ_CLIENT \
                     --registry-password $AZ_SECRET \
-                    --dns-name-label react-app-${BUILD_NUMBER} \
+                    --dns-name-label react-app-$BUILD_NUMBER \
                     --ports 80 \
                     --os-type Linux \
                     --cpu 1 \
