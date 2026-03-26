@@ -2,13 +2,16 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 
-# Copy dependency files from the subfolder
+# Copy dependency files from the subfolder to the current WORKDIR (/app)
 COPY react-app/package*.json ./
+
+# DEBUG: Check if files actually copied
+RUN ls -al
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy the rest of the application code from the subfolder
 COPY react-app/ .
 
 # Build the app
@@ -16,9 +19,7 @@ RUN npm run build
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine-slim
-# Clean default nginx files
 RUN rm -rf /usr/share/nginx/html/*
-# Copy build output from the build stage
 COPY --from=build /app/build /usr/share/nginx/html
 
 EXPOSE 80
