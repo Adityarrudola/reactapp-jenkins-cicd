@@ -1,10 +1,10 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-    }
+    // options {
+    //     timestamps()
+    //     buildDiscarder(logRotator(numToKeepStr: '10'))
+    // }
 
     environment {
         ACR_REGISTRY = "demojenkinsacr.azurecr.io"
